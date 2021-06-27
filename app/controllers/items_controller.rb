@@ -4,27 +4,30 @@ class ItemsController < ApplicationController
 
   def index
     # binding.pry
-    if params[:user_id] && User.find_by_id(params[:user_id])
-      # binding.pry
-      user = User.find(params[:user_id])
-      items = user.items
-      render json: items, include: :user
+    if params[:user_id]
+      if User.find_by_id(params[:user_id])
+        user = User.find(params[:user_id])
+        items = user.items
+        render json: items, include: :user
+      else
+        render status: 404
+      end 
     else
       items = Item.all
       render json: items, include: :user
     end
     
-  rescue ActiveRecord::RecordInvalid => invalid
+  # rescue ActiveRecord::RecordInvalid => invalid
     # binding.pry
-    render json: { errors: invalid.record.errors }, status: :not_found
   end
 
   def show
     item = Item.find_by_id(params[:id])
-    render json: item
-  rescue ActiveRecord::RecordInvalid => invalid
-    # binding.pry
-    render json: { errors: invalid.record.errors }, status: :not_found
+    if item
+      render json: item
+    else
+      render status: 404
+    end
   end
 
   def create
